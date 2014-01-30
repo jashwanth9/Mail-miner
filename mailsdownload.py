@@ -8,6 +8,7 @@ import os
 import sys
 from datetime import datetime
 
+'''
 def extract_body(payload):
     if not payload:
         return 'no body'
@@ -16,6 +17,7 @@ def extract_body(payload):
             return payload
         else:
             return '\n'.join([extract_body(part.get_payload()) for part in payload])
+'''
 
 
 detach_dir = '.'
@@ -60,16 +62,26 @@ for msgId in data[0].split():
             # print part.as_string()
             # continue
 
-        print 'reading messages'
+        #print 'reading messages'
 
-        subject = part['subject']
+        # prints the raw text
+        if part.get_content_type() == 'text/plain':
+            subject = part['subject']
+            body=part.get_payload()
+            if subject:
+                mail_content = subject + '\n'
+            if body:
+                mail_content += body
+            else:
+                mail_content = ''
+
         #print(subject)
-        payload = part.get_payload(decode=True)
-        body = extract_body(payload)
+        #payload = part.get_payload(decode=True)
+        #body = extract_body(payload)
         #print(body)
 
             #fileName = part.get_filename()
-        fileName = ''.join(str(datetime.now().time()))
+        fileName = ''+str(datetime.now().time())
         counter+=1
 
         if bool(fileName):
@@ -77,7 +89,7 @@ for msgId in data[0].split():
             if not os.path.isfile(filePath) :
                 print fileName
                 fp = open(filePath, 'wb')
-                fp.write(body)
+                fp.write(mail_content)
                 fp.close()
 
 imapSession.close()
